@@ -1,9 +1,9 @@
 pragma solidity 0.6.2;
 
-import { ERC20 } from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import { Ownable } from "openzeppelin-solidity/contracts/access/Ownable.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-import { ERC20Permit } from "./ERC20Permit/ERC20Permit.sol";
+import { ERC20Permit } from "./ERC20Permit.sol";
 
 /**
  * @title UnrealToken 

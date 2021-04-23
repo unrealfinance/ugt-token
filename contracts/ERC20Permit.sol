@@ -1,7 +1,7 @@
 pragma solidity 0.6.2;
 
-import { ERC20 } from "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import { Counters } from "openzeppelin-solidity/contracts/utils/Counters.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { Counters } from "@openzeppelin/contracts/utils/Counters.sol";
 
 import "./Interfaces/IERC2612Permit.sol";
 
