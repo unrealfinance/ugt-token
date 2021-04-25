@@ -59,7 +59,6 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
         bytes32 _hash = keccak256(abi.encodePacked(uint16(0x1901), DOMAIN_SEPARATOR, hashStruct));
 
         address signer = ecrecover(_hash, v, r, s);
-        console.log(owner, signer);
         require(signer != address(0) && signer == owner, "Invalid signature");
 
         _nonces[owner].increment();

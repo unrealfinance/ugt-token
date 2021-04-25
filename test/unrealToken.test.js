@@ -93,4 +93,32 @@ describe("UnrealToken", function () {
     await unrealToken.connect(owner).rescueTokens(usdc.address, user.address, amount);
     assert.equal((await usdc.balanceOf(user.address)).toString(), amount.toString());
   });
+
+  // permit functions
+  it("permit", async function () {
+    const user1 = accounts[1];
+    const amount = ethers.utils.parseEther("100");
+    const nonce = await unrealToken.nonces(owner.address);
+    const deadline = ethers.BigNumber.from("99999999999999"); // random timestamp in future
+    const hash = await getPermitHash(unrealToken, owner, user1, amount, nonce, deadline);
+
+    const sig = ecsign(toBuffer(hash), toBuffer(privateKey));
+
+    let result = await unrealToken.permit(owner.address, user1.address, amount, deadline, sig.v, sig.r, sig.s);
+    const receipt = await result.wait();
+    const approvalLog = receipt.events[0];
+    assert.equal(approvalLog.args.owner, owner.address);
+    assert.equal(approvalLog.args.spender, user1.address);
+    assert.equal(approvalLog.args.value.toString(), amount.toString());
+  });
+
+  it("permit: wrong data", async function () {
+    const user1 = accounts[1];
+    const amount = ethers.utils.parseEther("100");
+    const nonce = await unrealToken.nonces(owner.address);
+    const deadline = ethers.BigNumber.from("99999999999999"); // random timestamp in future
+    const hash = await getPermitHash(unrealToken, owner, user1, amount, nonce, deadline);
+    const sig = ecsign(toBuffer(hash), toBuffer(privateKey));
+    await assertRevert(unrealToken.permit(user1.address, owner.address, amount, deadline, sig.v, sig.r, sig.s));
+  });
 });

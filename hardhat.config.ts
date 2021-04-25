@@ -17,7 +17,7 @@ dotenvConfig({ path: resolve(__dirname, "./.env") });
 const chainIds = {
   ganache: 1337,
   goerli: 5,
-  hardhat: 31337,
+  hardhat: 1,
   kovan: 42,
   mainnet: 1,
   rinkeby: 4,

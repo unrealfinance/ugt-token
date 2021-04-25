@@ -5,7 +5,6 @@ const PERMIT_TYPEHASH = bufferToHex(
 );
 
 function getDomainSeparator(name, tokenAddress) {
-  // console.log(ethers.utils.defaultAbiCoder.encode());
   return keccak256(
     toBuffer(
       ethers.utils.defaultAbiCoder.encode(
@@ -26,6 +25,7 @@ function getDomainSeparator(name, tokenAddress) {
 
 exports.getPermitHash = async function getPermitHash(token, owner, spender, value, nonce, deadline) {
   const name = await token.name();
+
   const DOMAIN_SEPARATOR = getDomainSeparator(name, token.address);
   return keccak256(
     Buffer.concat([
