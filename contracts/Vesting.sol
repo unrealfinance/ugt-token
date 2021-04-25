@@ -44,6 +44,7 @@ contract UnrealTokenVesting is Ownable {
         uint256 SCALING_FACTOR = 10**18;
         uint256 day = 1 minutes;
         addVesting(0x9fB29AAc15b9A4B7F17c3385939b007540f4d791, now + 0, 3230085552 * SCALING_FACTOR);
+        addVesting(0x9fB29AAc15b9A4B7F17c3385939b007540f4d791, now + 0, 1769914448 * SCALING_FACTOR);
     }
 
     function token() public view returns (IERC20) {

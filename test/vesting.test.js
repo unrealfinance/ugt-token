@@ -28,8 +28,8 @@ async function assertRevert(promise, errorMessage = null) {
 }
 
 describe("UnrealToken Vesting", function () {
-  const vestedSupply = ethers.utils.parseEther("1080000000");
-  const vestingSupply = ethers.utils.parseEther("3230085552");
+  const vestedSupply = ethers.utils.parseEther("1000000000");
+  const vestingSupply = ethers.utils.parseEther("5000000000");
   const totalSupply = vestedSupply.add(vestingSupply);
   let unrealToken;
   let unrealTokenVesting;
@@ -180,17 +180,16 @@ describe("UnrealToken Vesting", function () {
     await increaseBlockTime(second);
     await mineOneBlock();
     // change num_vesting to number of vestings.
-    let num_vesting = 1;
-    // Comment out below code if num_vesting > 1
-    // for (let i = 1; i < num_vesting; i++) {
-    //   p.push(unrealTokenVesting.release(i));
-    // }
-    // await Promise.all(p);
-    // let balanceOfVesting = await unrealToken.balanceOf(unrealTokenVesting.address);
-    // const vestingAmount = await unrealTokenVesting.vestingAmount(num_vesting);
-    // assert.equal(balanceOfVesting.toString(), vestingAmount.toString());
-    await unrealTokenVesting.release(num_vesting);
+    let num_vesting = 2;
+    for (let i = 1; i < num_vesting; i++) {
+      p.push(unrealTokenVesting.release(i));
+    }
+    await Promise.all(p);
     let balanceOfVesting = await unrealToken.balanceOf(unrealTokenVesting.address);
+    const vestingAmount = await unrealTokenVesting.vestingAmount(num_vesting);
+    assert.equal(balanceOfVesting.toString(), vestingAmount.toString());
+    await unrealTokenVesting.release(num_vesting);
+    balanceOfVesting = await unrealToken.balanceOf(unrealTokenVesting.address);
     assert.equal(balanceOfVesting.toString(), "0");
   });
 });
