@@ -5,7 +5,6 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
-
 /**
  * @title TokenVesting
  * @dev A token holder contract that can release its token balance gradually like a
@@ -42,7 +41,7 @@ contract UnrealTokenVesting is Ownable {
     constructor(IERC20 _ugtToken) public {
         require(address(_ugtToken) != address(0x0), "Token cannot be zero");
         UGT_TOKEN = _ugtToken;
-        uint256 SCALING_FACTOR = 10 ** 18;
+        uint256 SCALING_FACTOR = 10**18;
         uint256 day = 1 minutes;
         addVesting(0x9fB29AAc15b9A4B7F17c3385939b007540f4d791, now + 0, 3230085552 * SCALING_FACTOR);
     }
@@ -66,13 +65,17 @@ contract UnrealTokenVesting is Ownable {
     function removeVesting(uint256 _vestingId) public onlyOwner {
         Vesting storage vesting = vestings[_vestingId];
         require(vesting.beneficiary != address(0x0), INVALID_VESTING_ID);
-        require(!vesting.released , VESTING_ALREADY_RELEASED);
+        require(!vesting.released, VESTING_ALREADY_RELEASED);
         vesting.released = true;
         tokensToVest = tokensToVest.sub(vesting.amount);
         emit TokenVestingRemoved(_vestingId, vesting.beneficiary, vesting.amount);
     }
 
-    function addVesting(address _beneficiary, uint256 _releaseTime, uint256 _amount) public onlyOwner {
+    function addVesting(
+        address _beneficiary,
+        uint256 _releaseTime,
+        uint256 _amount
+    ) public onlyOwner {
         require(_beneficiary != address(0x0), INVALID_BENEFICIARY);
         tokensToVest = tokensToVest.add(_amount);
         vestingId = vestingId.add(1);
@@ -88,7 +91,7 @@ contract UnrealTokenVesting is Ownable {
     function release(uint256 _vestingId) public {
         Vesting storage vesting = vestings[_vestingId];
         require(vesting.beneficiary != address(0x0), INVALID_VESTING_ID);
-        require(!vesting.released , VESTING_ALREADY_RELEASED);
+        require(!vesting.released, VESTING_ALREADY_RELEASED);
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= vesting.releaseTime, NOT_VESTED);
 

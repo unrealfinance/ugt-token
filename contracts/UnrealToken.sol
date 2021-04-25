@@ -6,13 +6,11 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20Permit } from "./ERC20Permit.sol";
 
 /**
- * @title UnrealToken 
+ * @title UnrealToken
  * @dev Unreal ERC20 Token
  */
-contract UnrealToken is ERC20Permit,  Ownable {
-    constructor (uint256 totalSupply)
-    public
-    ERC20 ("Unreal Governance Token", "UGT") {
+contract UnrealToken is ERC20Permit, Ownable {
+    constructor(uint256 totalSupply) public ERC20("Unreal Governance Token", "UGT") {
         _mint(msg.sender, totalSupply);
     }
 
@@ -24,7 +22,11 @@ contract UnrealToken is ERC20Permit,  Ownable {
      * @param destination User address
      * @param amount Amount of tokens
      */
-    function rescueTokens(address token, address destination, uint256 amount) external onlyOwner {
+    function rescueTokens(
+        address token,
+        address destination,
+        uint256 amount
+    ) external onlyOwner {
         require(token != destination, "Invalid address");
         require(ERC20(token).transfer(destination, amount), "Retrieve failed");
     }

@@ -2,7 +2,7 @@ pragma solidity 0.6.2;
 
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Counters } from "@openzeppelin/contracts/utils/Counters.sol";
-
+import "hardhat/console.sol";
 import "./Interfaces/IERC2612Permit.sol";
 
 /**
@@ -14,7 +14,7 @@ import "./Interfaces/IERC2612Permit.sol";
 abstract contract ERC20Permit is ERC20, IERC2612Permit {
     using Counters for Counters.Counter;
 
-    mapping (address => Counters.Counter) private _nonces;
+    mapping(address => Counters.Counter) private _nonces;
 
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
@@ -42,29 +42,24 @@ abstract contract ERC20Permit is ERC20, IERC2612Permit {
      * @dev See {IERC2612Permit-permit}.
      *
      */
-    function permit(address owner, address spender, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public virtual override {
+    function permit(
+        address owner,
+        address spender,
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override {
         require(block.timestamp <= deadline, "expired deadline");
 
-        bytes32 hashStruct = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                owner,
-                spender,
-                amount,
-                _nonces[owner].current(),
-                deadline
-            )
-        );
+        bytes32 hashStruct =
+            keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, amount, _nonces[owner].current(), deadline));
 
-        bytes32 _hash = keccak256(
-            abi.encodePacked(
-                uint16(0x1901),
-                DOMAIN_SEPARATOR,
-                hashStruct
-            )
-        );
+        bytes32 _hash = keccak256(abi.encodePacked(uint16(0x1901), DOMAIN_SEPARATOR, hashStruct));
 
         address signer = ecrecover(_hash, v, r, s);
+        console.log(owner, signer);
         require(signer != address(0) && signer == owner, "Invalid signature");
 
         _nonces[owner].increment();
