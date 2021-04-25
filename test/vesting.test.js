@@ -3,26 +3,11 @@ const { ethers } = require("hardhat");
 
 
 async function increaseBlockTime(seconds) {
-    return ethers.currentProvider.send(
-        {
-            jsonrpc: "2.0",
-            method: "evm_increaseTime",
-            params: [seconds],
-            id: new Date().getTime()
-        },
-        () => {}
-    )
+    return ethers.provider.send("evm_increaseTime", [seconds])
 }
 
 async function mineOneBlock() {
-    return ethers.currentProvider.send(
-        {
-            jsonrpc: "2.0",
-            method: "evm_mine",
-            id: new Date().getTime()
-        },
-        () => {}
-    )
+    return ethers.provider.send("evm_mine")
 }
 
 async function assertRevert(promise, errorMessage = null) {
@@ -48,8 +33,8 @@ async function assertRevert(promise, errorMessage = null) {
 
 
 describe("UnrealToken Vesting", function (){
-    const vestedSupply = ethers.BigNumber.from(1080000);
-    const vestingSupply = ethers.BigNumber.from(8920000);
+    const vestedSupply = ethers.utils.parseEther("1080000");
+    const vestingSupply = ethers.utils.parseEther("8920000");
     const totalSupply = vestedSupply.add(vestingSupply);
     let unrealToken;
     let unrealTokenVesting;
@@ -82,26 +67,54 @@ describe("UnrealToken Vesting", function (){
             time.toString(),
             amount
         )
+        // retrieve vesting Id from events args
+        const receipt = await result.wait();
+        const vestingId = receipt.events[0].args.vestingId;
+
         await unrealToken.transfer(unrealTokenVesting.address, amount)
-        console.log("transfer");
         let balance = await unrealTokenVesting.vestingAmount(
-            result.receipt.logs[0].args.vestingId
+            vestingId
         )
-        console.log(balance)
         assert.equal(balance.toString(), amount.toString())
 
         // "Tokens have not vested yet"
         await assertRevert(
-            unrealTokenVesting.release(result.receipt.logs[0].args.vestingId),
+            unrealTokenVesting.release(vestingId),
             "Tokens have not vested yet"
         )
         // Time travel
-        let seconds = 60 * 6000
-        await increaseBlockTime(seconds)
-        await mineOneBlock()
+        let seconds = 60 * 6000;
+        await increaseBlockTime(seconds);
+        await mineOneBlock();
         // test release
-        await unrealTokenVesting.release(result.receipt.logs[0].args.vestingId)
-        balance = await unrealToken.balanceOf.call(accounts[1])
+        await unrealTokenVesting.release(vestingId);
+        balance = await unrealToken.balanceOf(accounts[1].address)
         assert.equal(balance.toString(), amount.toString())
     });
+
+    it("should test addVesting data", async function() {
+        const vestingAmount = await ethers.utils.parseEther("10");
+        const beneficiary = accounts[1]
+        const block = await ethers.provider.getBlock("latest");
+        const blockTime = block.timestamp
+        let time = new Date(blockTime)
+        time.setMinutes(time.getMinutes() + 6)
+        time = +time
+        let result = await unrealTokenVesting.connect(accounts[0]).addVesting(
+            accounts[1].address,
+            time.toString(),
+            vestingAmount
+        )
+        // retrieve vesting Id from events args
+        const receipt = await result.wait();
+        const vestingId = receipt.events[0].args.vestingId;
+
+        assert.equal((await unrealTokenVesting.vestingAmount(vestingId)).toString(), vestingAmount.toString());
+        assert.equal((await unrealTokenVesting.releaseTime(vestingId)).toString(), time);
+        assert.equal(await unrealTokenVesting.beneficiary(vestingId), beneficiary.address);
+    });
+
+    
+
+
 });
