@@ -1,4 +1,4 @@
-
+pragma solidity ^0.6.2;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -6,7 +6,6 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 contract TokenVesting is Ownable {
     using SafeMath for uint;
-    using Math for uint;
     using SafeERC20 for IERC20;
 
     IERC20 public token;
