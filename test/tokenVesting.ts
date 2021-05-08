@@ -1,33 +1,21 @@
 import { BigNumber, Signer } from "ethers";
-import { TokenVesting, UnrealToken } from "../typechain";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { increaseBlockTime, mineOneBlock, getUnixTimeStamp } from "./utils/common";
+import { ethers } from "hardhat";
+
 chai.use(chaiAsPromised);
 const { expect } = chai;
 
-const { ethers } = require("hardhat");
-
-async function increaseBlockTime(seconds: any) {
-  return ethers.provider.send("evm_increaseTime", [seconds]);
-}
-
-async function mineOneBlock() {
-  return ethers.provider.send("evm_mine");
-}
-
-function getUnixTimeStamp(date: Date) {
-  return (date.getTime() / 1000).toFixed(0);
-}
-
 const avg_seconds_in_months = 60 * 60 * 24 * 30.8;
 describe("Token Vesting", function () {
-  const vestedSupply = ethers.utils.parseEther("1000000000");
-  const vestingSupply = ethers.utils.parseEther("5000000000");
-  const totalSupply = vestedSupply.add(vestingSupply);
-  let unrealToken: UnrealToken;
-  let TokenVesting: TokenVesting;
+  const totalSupply = ethers.utils.parseEther("5000000000");
+
+  let unrealToken: any;
+  let TokenVesting: any;
   let accounts: Signer[] = [];
   let owner: Signer;
+  let immediateRelease = BigNumber.from("0");
   beforeEach(async function () {
     // Deploy UnrealToken
     accounts = await ethers.getSigners();
@@ -42,7 +30,7 @@ describe("Token Vesting", function () {
     await TokenVesting.deployed();
 
     // add token to vesting contract
-    await unrealToken.connect(owner).transfer(TokenVesting.address, vestingSupply);
+    await unrealToken.connect(owner).transfer(TokenVesting.address, totalSupply);
   });
 
   it("should vest linearly ", async function () {
@@ -61,14 +49,14 @@ describe("Token Vesting", function () {
     const account2 = await accounts[2].getAddress();
     const dummyCommunity = [account1, account2];
     const dummyAmounts = [amount1, amount2];
-    const immidiateRelease = BigNumber.from("0");
+    immediateRelease = BigNumber.from("0");
 
     await TokenVesting.connect(accounts[0]).addVestings(
       dummyCommunity,
       dummyAmounts,
       startTimeStamp.toString(),
       endTimeStamp.toString(),
-      immidiateRelease,
+      immediateRelease,
     );
 
     expect(await TokenVesting.claimable(dummyCommunity[0])).to.be.equal(0);
@@ -112,14 +100,14 @@ describe("Token Vesting", function () {
     const account2 = await accounts[4].getAddress();
     const dummyCommunity = [account1, account2];
     const dummyAmounts = [amount1, amount2];
-    const immidiateRelease = BigNumber.from("0");
+    immediateRelease = BigNumber.from("0");
 
     await TokenVesting.connect(accounts[0]).addVestings(
       dummyCommunity,
       dummyAmounts,
       startTimeStamp.toString(),
       endTimeStamp.toString(),
-      immidiateRelease,
+      immediateRelease,
     );
 
     expect(await TokenVesting.claimable(dummyCommunity[0])).to.be.equal(0);
@@ -150,7 +138,7 @@ describe("Token Vesting", function () {
     expect(Math.floor((await TokenVesting.claimable(dummyCommunity[1])).toNumber() / 1000)).to.be.equal(3);
   });
 
-  it("should vest with immidiate Release", async function () {
+  it("should vest with immediate Release", async function () {
     const amount1 = await ethers.utils.parseEther("0.00000000000001");
     const amount2 = await ethers.utils.parseEther("0.00000000000001");
     let block = await ethers.provider.getBlock("latest");
@@ -167,21 +155,21 @@ describe("Token Vesting", function () {
     const account2 = await accounts[4].getAddress();
     const dummyCommunity = [account1, account2];
     const dummyAmounts = [amount1, amount2];
-    const immidiateRelease = BigNumber.from("10");
+    immediateRelease = BigNumber.from("10");
 
     await TokenVesting.connect(accounts[0]).addVestings(
       dummyCommunity,
       dummyAmounts,
       startTimeStamp.toString(),
       endTimeStamp.toString(),
-      immidiateRelease,
+      immediateRelease,
     );
 
     expect(await TokenVesting.claimable(dummyCommunity[0])).to.be.equal(1000);
     expect(await TokenVesting.claimable(dummyCommunity[1])).to.be.equal(1000);
   });
 
-  it("should be able to claim immidiate release and claimable should decrease to 0", async function () {
+  it("should be able to claim immediate release and claimable should decrease to 0", async function () {
     const amount1 = await ethers.utils.parseEther("0.00000000000001");
     const amount2 = await ethers.utils.parseEther("0.00000000000001");
     let block = await ethers.provider.getBlock("latest");
@@ -198,14 +186,14 @@ describe("Token Vesting", function () {
     const account2 = await accounts[4].getAddress();
     const dummyCommunity = [account1, account2];
     const dummyAmounts = [amount1, amount2];
-    const immidiateRelease = BigNumber.from("10");
+    immediateRelease = BigNumber.from("10");
 
     await TokenVesting.connect(accounts[0]).addVestings(
       dummyCommunity,
       dummyAmounts,
       startTimeStamp.toString(),
       endTimeStamp.toString(),
-      immidiateRelease,
+      immediateRelease,
     );
     expect(await TokenVesting.claimable(dummyCommunity[0])).to.be.equal(1000);
     expect(await TokenVesting.claimable(dummyCommunity[1])).to.be.equal(1000);
@@ -234,14 +222,14 @@ describe("Token Vesting", function () {
     const account2 = await accounts[4].getAddress();
     const dummyCommunity = [account1, account2];
     const dummyAmounts = [amount1, amount2];
-    const immidiateRelease = BigNumber.from("0");
+    immediateRelease = BigNumber.from("0");
 
     await TokenVesting.connect(accounts[0]).addVestings(
       dummyCommunity,
       dummyAmounts,
       startTimeStamp.toString(),
       endTimeStamp.toString(),
-      immidiateRelease,
+      immediateRelease,
     );
 
     expect(await TokenVesting.claimable(dummyCommunity[0])).to.be.equal(0);
@@ -288,14 +276,14 @@ describe("Token Vesting", function () {
     const account2 = await accounts[4].getAddress();
     const dummyCommunity = [account1, account2];
     const dummyAmounts = [amount1, amount2];
-    const immidiateRelease = BigNumber.from("10");
+    immediateRelease = BigNumber.from("10");
 
     await TokenVesting.connect(accounts[0]).addVestings(
       dummyCommunity,
       dummyAmounts,
       startTimeStamp.toString(),
       endTimeStamp.toString(),
-      immidiateRelease,
+      immediateRelease,
     );
 
     expect(await TokenVesting.claimable(dummyCommunity[0])).to.be.equal(1000);
