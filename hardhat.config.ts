@@ -5,7 +5,7 @@ import "solidity-coverage";
 
 import "./tasks/accounts";
 import "./tasks/clean";
-
+import "hardhat-deploy";
 import { resolve } from "path";
 
 import { config as dotenvConfig } from "dotenv";
@@ -62,16 +62,32 @@ const config: HardhatUserConfig = {
     src: "./contracts",
   },
   networks: {
+    localhost: {
+      live: false,
+      saveDeployments: true,
+      tags: ["local"],
+    },
     hardhat: {
       accounts: {
         mnemonic,
       },
       chainId: chainIds.hardhat,
+      live: false,
+      saveDeployments: true,
+      tags: ["test", "local"],
     },
     goerli: createTestnetConfig("goerli"),
     kovan: createTestnetConfig("kovan"),
     rinkeby: createTestnetConfig("rinkeby"),
     ropsten: createTestnetConfig("ropsten"),
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0, // here this will by default take the first account as deployer
+    },
+    feeCollector: {
+      default: 1, // here this will by default take the second account as feeCollector (so in the test this will be a different account than the deployer)
+    },
   },
   paths: {
     artifacts: "./artifacts",
