@@ -33,14 +33,14 @@ if (!process.env.MNEMONIC) {
 }
 
 let infuraApiKey: string;
-if (!process.env.INFURA_API_KEY) {
-  throw new Error("Please set your INFURA_API_KEY in a .env file");
+if (!process.env.ALCHEMY_API_KEY) {
+  throw new Error("Please set your ALCHEMY_API_KEY in a .env file");
 } else {
-  infuraApiKey = process.env.INFURA_API_KEY;
+  infuraApiKey = process.env.ALCHEMY_API_KEY;
 }
 
 function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
-  const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+  const url: string = "https://eth-" + network + ".alchemyapi.io/v2/" + infuraApiKey;
   return {
     accounts: {
       count: 10,

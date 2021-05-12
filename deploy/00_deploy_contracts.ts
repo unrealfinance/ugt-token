@@ -6,7 +6,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deterministic } = deployments;
   const { deployer } = await getNamedAccounts();
-  const totalSupply = ethers.utils.parseEther("5000000000");
+  const totalSupply = ethers.utils.parseEther("1");
   const { address: addressUnrealToken, deploy: deployUnrealToken } = await deterministic("UnrealToken", {
     from: deployer,
     args: [totalSupply],
