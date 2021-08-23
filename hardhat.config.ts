@@ -1,4 +1,5 @@
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -80,6 +81,10 @@ const config: HardhatUserConfig = {
     kovan: createTestnetConfig("kovan"),
     rinkeby: createTestnetConfig("rinkeby"),
     ropsten: createTestnetConfig("ropsten"),
+    mainnet: createTestnetConfig("mainnet"),
+  },
+  etherscan: {
+    apiKey: "V5J7NIFIAWBVF81J6XFRRCR4ZH3SIC4DIW"
   },
   namedAccounts: {
     deployer: {
